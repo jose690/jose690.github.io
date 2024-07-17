@@ -18,25 +18,6 @@ def index():
     # Envía el archivo 'index.html' desde la raíz del proyecto
     return send_from_directory(os.getcwd(), 'index.html')
 
-# Define una ruta para obtener datos de un usuario usando SQLAlchemy
-@app.route('/obtener_datos_linq', methods=['GET'])
-def obtener_datos_linq():
-    # Obtiene el valor de 'cedula' de los parámetros de la solicitud
-    cedula = request.args.get('cedula')
-    # Consulta la base de datos para encontrar el usuario con la cédula proporcionada
-    usuario = Usuario.query.filter_by(cedula=cedula).first()
-    if usuario:
-        # Si se encuentra el usuario, devuelve sus datos en formato JSON
-        return jsonify(success=True, data={
-            'Nombre': usuario.nombre,
-            'Primer apellido': usuario.apellido1,
-            'Segundo apellido': usuario.apellido2,
-            'Fecha de nacimiento': usuario.fechaNacimiento
-        })
-    else:
-        # Si no se encuentra el usuario, devuelve un mensaje de error en formato JSON
-        return jsonify(success=False, message='Cédula no encontrada.')
-
 # Define una ruta para obtener datos de un usuario usando una consulta SQL directa
 @app.route('/obtener_datos_sql', methods=['GET'])
 def obtener_datos_sql():
