@@ -2,63 +2,43 @@
 <html>
 <head>
     <title>Consulta de Usuario</title>
-    <!-- Incluye la biblioteca jQuery -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Vincula el CSS -->
-    <link rel="stylesheet" type="text/css" href="static/css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h1>Prueba RG Rogus</h1>
         <h2>Webapp Python José Guzmán</h2>
         <h3>CTP Puriscal</h3>
-        <!-- Campo de entrada para la cédula -->
         <div class="form-group">
             <label for="cedula">Cédula:</label>
-            <input type="text" id="cedula" placeholder="01-1234-5678" />
+            <input type="text" id="cedula" placeholder="01-1234-5678" class="form-control" />
         </div>
-        <!-- Botón para buscar usuario -->
-        <div class="form-group">
-            <button onclick="buscarUsuario()">Buscar</button>
-        </div>
-        <!-- Div para mostrar los resultados de la búsqueda -->
-        <div id="resultado" class="resultados"></div>
+        <button onclick="buscarUsuario()">Buscar</button>
+        <div id="resultado"></div>
     </div>
 
     <script>
-        // Función para buscar el usuario basado en la cédula ingresada
+        $(document).ready(function(){
+            $('#cedula').mask('00-0000-0000');
+        });
+
         function buscarUsuario() {
-            // Obtiene el valor de la cédula ingresada
             var cedula = $('#cedula').val();
-            // Realiza una solicitud AJAX al servidor
             $.ajax({
-                url: '/obtener_datos_sql',  // URL de la ruta en el servidor Flask
-                type: 'GET',  // Tipo de solicitud HTTP (GET)
-                data: { cedula: cedula },  // Datos que se envían con la solicitud (la cédula)
-                success: function (response) {  // Función de éxito que se ejecuta si la solicitud es exitosa
+                url: '/obtener_datos_sql',
+                type: 'GET',
+                data: { cedula: cedula },
+                success: function (response) {
                     if (response.success) {
-                        // Si se encuentra el usuario, muestra sus datos en el div 'resultado'
                         $('#resultado').html('Nombre: ' + response.data.nombre + '<br>Primer Apellido: ' + response.data.apellido1 + '<br>Segundo Apellido: ' + response.data.apellido2 + '<br>Fecha de Nacimiento: ' + response.data.fechaNacimiento);
                     } else {
-                        // Si no se encuentra el usuario, muestra un mensaje de error
                         $('#resultado').html(response.message);
                     }
                 }
             });
         }
-
-        $(document).ready(function() {
-            $('#cedula').on('input', function() {
-                var value = $(this).val();
-                value = value.replace(/\D/g, ''); // Elimina todos los caracteres que no sean dígitos
-                if (value.length > 2 && value.length <= 6) {
-                    value = value.replace(/(\d{2})(\d+)/, '$1-$2'); // Agrega el primer guion
-                } else if (value.length > 6) {
-                    value = value.replace(/(\d{2})(\d{4})(\d+)/, '$1-$2-$3'); // Agrega el segundo guion
-                }
-                $(this).val(value);
-            });
-        });
     </script>
 </body>
 </html>
