@@ -32,7 +32,7 @@
             var cedula = $('#cedula').val();
             // Realiza una solicitud AJAX al servidor
             $.ajax({
-                url: '/obtener_datos_linq',  // URL de la ruta en el servidor Flask
+                url: '/obtener_datos_sql',  // URL de la ruta en el servidor Flask
                 type: 'GET',  // Tipo de solicitud HTTP (GET)
                 data: { cedula: cedula },  // Datos que se envían con la solicitud (la cédula)
                 success: function (response) {  // Función de éxito que se ejecuta si la solicitud es exitosa
