@@ -1,8 +1,9 @@
 # Importa las clases y funciones necesarias de Flask, y otros módulos
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, send_from_directory
 from config import Config
-from models import db
+from models import db, Usuario
 import pyodbc
+import os
 
 # Crea una instancia de Flask
 app = Flask(__name__)
@@ -14,21 +15,40 @@ db.init_app(app)
 # Define una ruta para la página principal
 @app.route('/')
 def index():
-    # Renderiza la plantilla 'index.html'
-    return render_template('index.html')
+    # Envía el archivo 'index.html' desde la raíz del proyecto
+    return send_from_directory(os.getcwd(), 'index.html')
+
+# Define una ruta para obtener datos de un usuario usando SQLAlchemy
+@app.route('/obtener_datos_linq', methods=['GET'])
+def obtener_datos_linq():
+    # Obtiene el valor de 'cedula' de los parámetros de la solicitud
+    cedula = request.args.get('cedula')
+    # Consulta la base de datos para encontrar el usuario con la cédula proporcionada
+    usuario = Usuario.query.filter_by(cedula=cedula).first()
+    if usuario:
+        # Si se encuentra el usuario, devuelve sus datos en formato JSON
+        return jsonify(success=True, data={
+            'Nombre': usuario.nombre,
+            'Primer apellido': usuario.apellido1,
+            'Segundo apellido': usuario.apellido2,
+            'Fecha de nacimiento': usuario.fechaNacimiento
+        })
+    else:
+        # Si no se encuentra el usuario, devuelve un mensaje de error en formato JSON
+        return jsonify(success=False, message='Cédula no encontrada.')
 
 # Define una ruta para obtener datos de un usuario usando una consulta SQL directa
 @app.route('/obtener_datos_sql', methods=['GET'])
 def obtener_datos_sql():
     # Obtiene el valor de 'cedula' de los parámetros de la solicitud
-    cedula = request.args.get('cedula').replace('-', '')  # Elimina los guiones
+    cedula = request.args.get('cedula')
     # Cadena de conexión a la base de datos
     connection_string = 'DRIVER={ODBC Driver 17 for SQL Server};SERVER=201.237.248.149;DATABASE=PracticaUtilidades;UID=pruebas2016;PWD=pruebas2016'
     # Establece una conexión con la base de datos
     conn = pyodbc.connect(connection_string)
     # Crea un cursor para ejecutar la consulta
     cursor = conn.cursor()
-    # Ejecuta el procedimiento almacenado 'ObtenerDatosPorCedula_JoseGuzman' con el parámetro 'cedula'
+    # Ejecuta el procedimiento almacenado 'JoseGuzmanObtenerDatosPorCedula' con el parámetro 'cedula'
     cursor.execute('EXEC ObtenerDatosPorCedula_JoseGuzman ?', cedula)
     # Obtiene la primera fila del resultado de la consulta
     row = cursor.fetchone()
